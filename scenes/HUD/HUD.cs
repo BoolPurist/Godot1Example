@@ -6,10 +6,13 @@ public class HUD : CanvasLayer
     [Signal]
     public delegate void StartGame();
 
+    private const string PREFIX_SCORE_TEXT = "Score: ";
+    
     private Label _messageLabel;
     private Timer _messageTimer;
     private Button _startButton;
     private Label _scoreLabel;
+    
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -21,6 +24,8 @@ public class HUD : CanvasLayer
 
         _startButton.Connect("pressed", this, nameof(OnStartButtonPressed));
         _messageTimer.Connect("timeout", this, nameof(OnMessageTimerTimeout));
+        
+        UpdateScore(0);
     }
 
     public void ShowMessage(string text)
@@ -32,7 +37,7 @@ public class HUD : CanvasLayer
 
     public void UpdateScore(int score)
     {
-        _scoreLabel.Text = score.ToString();
+        _scoreLabel.Text = $"{PREFIX_SCORE_TEXT}{score.ToString()}";
     }
 
     public async void ShowGameOver()
