@@ -9,19 +9,24 @@ public class Main : Node2D
     private static readonly Random RandomGenerator = new Random();
 
     private int _score;
-
+    
     private HUD _hud;
+    private AudioStreamPlayer2D _mainBackgroundMusic;
+    private AudioStreamPlayer2D _playerDeathSound;
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         _hud = GetNode<HUD>("HUD");
-        
+        _mainBackgroundMusic = GetNode<AudioStreamPlayer2D>("Music");
+        _playerDeathSound = GetNode<AudioStreamPlayer2D>("DeathSound");
+
         // Connecting for signals
         GetNode<Player>("Player").Connect("Hit", this, nameof(GameOver));
         GetNode<Timer>("ScoreTimer").Connect("timeout", this, nameof(OnScoreTimerTimeout));
         GetNode<Timer>("StartTimer").Connect("timeout", this, nameof(OnStartTimerTimeout));
         GetNode<Timer>("MobTimer").Connect("timeout", this, nameof(OnMobTimerTimeout));
+
         _hud.Connect("StartGame",this, nameof(NewGame));
     }
 
@@ -32,6 +37,11 @@ public class Main : Node2D
 
     public void GameOver()
     {
+        if (!_playerDeathSound.Playing)
+        {
+            _playerDeathSound.Play();
+        }
+
         GetNode<Timer>("MobTimer").Stop();
         GetNode<Timer>("ScoreTimer").Stop();
         GetTree().CallGroup("mobs", "queue_free");
@@ -43,6 +53,12 @@ public class Main : Node2D
         _score = 0;
         _hud.UpdateScore(_score);
         _hud.ShowMessage("Get Ready !");
+        
+        if (!_mainBackgroundMusic.Playing)
+        {
+            _mainBackgroundMusic.Play();
+        }
+
         var player = GetNode<Player>("Player");
         player.Start(GetNode<Position2D>("StartPosition").Position);
         GetNode<Timer>("StartTimer").Start();
